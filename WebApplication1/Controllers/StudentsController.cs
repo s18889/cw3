@@ -26,7 +26,7 @@ namespace WebApplication1.Controllers
             _dbService = dbService;
         }
 
-        [HttpGet("/z3/{id}")]
+        [HttpGet("{id}")]
         public IActionResult GetStudentId(int id)
         {
             using (SqlConnection con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18889;Integrated Security=True"))
@@ -44,14 +44,7 @@ namespace WebApplication1.Controllers
                 com.CommandText = $"select * from Enrollment where Enrollment.IdEnrollment={idd}";
                 dr = com.ExecuteReader();
                 var st = new List<string>();
-                //while (dr.Read())
-                //{
-                //    if (dr["LastName"] == DBNull.Value)
-                //    {
 
-                //    }
-                //    Console.WriteLine(dr["LastName"].ToString());
-                //    st.Add(dr["LastName"].ToString());
 
                 //}
                 dr.Read();

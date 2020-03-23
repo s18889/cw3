@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -25,18 +26,37 @@ namespace WebApplication1.Controllers
             _dbService = dbService;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("/z3/{id}")]
         public IActionResult GetStudentId(int id)
         {
-            if(id == 0)
+            using (SqlConnection con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18889;Integrated Security=True"))
+            using (SqlCommand com = new SqlCommand())
             {
-                return Ok("Kowalski");
-            }else if(id == 1)
-            {
-                return Ok("Nowak");
-            }else
-            {
-                return NotFound("nie znaleziono studenta");
+                com.Connection = con;
+                com.CommandText = $"select * from Student where Student.IndexNumber={id}";
+                
+                con.Open();
+                var dr = com.ExecuteReader();
+
+                dr.Read();
+                string idd = dr["IdEnrollment"].ToString();
+                dr.Close();
+                com.CommandText = $"select * from Enrollment where Enrollment.IdEnrollment={idd}";
+                dr = com.ExecuteReader();
+                var st = new List<string>();
+                //while (dr.Read())
+                //{
+                //    if (dr["LastName"] == DBNull.Value)
+                //    {
+
+                //    }
+                //    Console.WriteLine(dr["LastName"].ToString());
+                //    st.Add(dr["LastName"].ToString());
+
+                //}
+                dr.Read();
+                return Ok(dr["IdEnrollment"].ToString());
+                dr.Close();
             }
 
         }
@@ -45,7 +65,31 @@ namespace WebApplication1.Controllers
         public IActionResult GetStudents(string orderBy)
         {
 
-            return Ok(_dbService.GetStudents());
+            using (SqlConnection con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18889;Integrated Security=True"))
+            using (SqlCommand com = new SqlCommand())
+            {
+                com.Connection = con;
+                com.CommandText = "select * from Student";
+
+                con.Open();
+                var dr = com.ExecuteReader();
+                var st = new List<string>();
+                while(dr.Read())
+                {
+                    if(dr["LastName"] == DBNull.Value )
+                    {
+
+                    }
+                    Console.WriteLine(dr["LastName"].ToString());
+                    st.Add(dr["LastName"].ToString());
+                    
+                }
+                    return Ok(st);
+            }
+
+                
+            
+            
 
         }
 

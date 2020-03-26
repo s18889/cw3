@@ -26,8 +26,12 @@ namespace WebApplication1.Controllers
             _dbService = dbService;
         }
 
-        [HttpGet("{id}")]
-        public IActionResult GetStudentId(int id)
+
+
+        //Zadanie 4.4  http://localhost:57597/api/students/1;drop%20table%20student;--
+        //Zadanie 4.3 Zakomentowuje by zachować wersję sprzed zadania 4.5
+        /*[HttpGet("{id}")]
+        public IActionResult GetStudentWpis(String id)
         {
             using (SqlConnection con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18889;Integrated Security=True"))
             using (SqlCommand com = new SqlCommand())
@@ -40,19 +44,35 @@ namespace WebApplication1.Controllers
 
                 dr.Read();
                 string idd = dr["IdEnrollment"].ToString();
-                dr.Close();
-                com.CommandText = $"select * from Enrollment where Enrollment.IdEnrollment={idd}";
-                dr = com.ExecuteReader();
-                var st = new List<string>();
 
+                return Ok(dr[0].ToString()+","+dr[1] +","+ dr[2]);
 
-                //}
+            }
+
+        }*/
+        //Zadanie 4.5 
+        [HttpGet("{id}")]
+        public IActionResult GetStudentWpis(String id)
+        {
+            using (SqlConnection con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18889;Integrated Security=True"))
+            using (SqlCommand com = new SqlCommand())
+            {
+                com.Connection = con;
+                com.CommandText = "select * from Student where Student.IndexNumber=@id";
+                com.Parameters.AddWithValue("id", id);
+                con.Open();
+                var dr = com.ExecuteReader();
+
                 dr.Read();
-                return Ok(dr["IdEnrollment"].ToString());
-                dr.Close();
+                string idd = dr["IdEnrollment"].ToString();
+
+                return Ok(dr[0].ToString() + "," + dr[1] + "," + dr[2]);
+
             }
 
         }
+
+
 
         [HttpGet]
         public IActionResult GetStudents(string orderBy)

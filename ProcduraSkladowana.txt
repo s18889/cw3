@@ -1,0 +1,28 @@
+Alter PROCEDURE enrolUp
+@semester int, @Name nvarchar(100)
+as
+Begin
+	declare @idNowegoEnrolment int,@idStaregoEnrolment int,@idstudies int;
+	
+	select @idstudies = IdStudy from Studies where Name=@Name
+
+	select  @idStaregoEnrolment  = IdEnrollment
+	from Enrollment where Semester = @semester and IdStudy =@idstudies;
+	
+	select  @idNowegoEnrolment = IdEnrollment
+	from Enrollment where Semester = @semester+1 and IdStudy =@idstudies;
+
+	if @idNowegoEnrolment is null
+	begin
+		
+		select @idNowegoEnrolment = max(IdEnrollment) from Enrollment;
+
+		INSERT INTO Enrollment 
+		VALUES (@idNowegoEnrolment+1, @semester+1, @idstudies, GETDATE());
+
+	end
+
+	update Student set IdEnrollment = @idNowegoEnrolment where IdEnrollment=@idStaregoEnrolment;
+
+	select * from Enrollment where IdEnrollment=@idNowegoEnrolment
+END

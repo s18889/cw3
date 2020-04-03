@@ -52,6 +52,7 @@ namespace WebApplication1.Controllers
 
         }*/
         //Zadanie 4.5 
+        //[Route("api/students")]
         [HttpGet("{id}")]
         public IActionResult GetStudentWpis(String id)
         {
@@ -72,14 +73,16 @@ namespace WebApplication1.Controllers
             }
 
         }
+        //5.1
         [HttpPost]
-        public IActionResult EnrollmentsController(Student s)
+        public IActionResult EnrollmentsController(AddStudent s)
         {
+            Console.WriteLine(s.IndexNumber);
             IStudentsDbService service = new ServerDbService();
-            return null;
-        }
+            return service.StrudentEnrolment(s);
+       }
 
-       [HttpGet]
+        [HttpGet]
         public IActionResult GetStudents(string orderBy)
         {
 
@@ -110,7 +113,7 @@ namespace WebApplication1.Controllers
             
 
         }
-
+/*
         [HttpPost]
         public IActionResult CreateStudent(Student s)
         {
@@ -119,7 +122,7 @@ namespace WebApplication1.Controllers
             return Ok(s);
 
         }
-
+*/
         [HttpPut("{id}")]
         public IActionResult PutStudent(int id)
         {
@@ -130,5 +133,9 @@ namespace WebApplication1.Controllers
         {
             return Ok("Usuwanie ukończone");
         }
+
+        
     }
+
+
 }

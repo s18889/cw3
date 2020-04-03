@@ -7,9 +7,12 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Services
 {
-    interface IStudentsDbService 
+    interface IEnrolmentUp
     {
-        public IActionResult StrudentEnrolment(AddStudent student);
+        
+            public IActionResult UpEnrolment(enrolmentUp enrolment);
+
+       
 
     }
 }

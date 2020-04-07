@@ -1,0 +1,7 @@
+
+
+ Entry:
+/api/students/n{
+"Studies": "IT",
+"Semester": 1
+}

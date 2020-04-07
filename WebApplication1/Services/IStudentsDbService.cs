@@ -7,9 +7,9 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Services
 {
-    interface IStudentsDbService 
+    public interface IStudentsDbService 
     {
         public IActionResult StrudentEnrolment(AddStudent student);
-
+        bool StudentExists(string dbs);
     }
 }

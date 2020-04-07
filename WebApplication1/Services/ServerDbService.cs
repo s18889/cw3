@@ -120,5 +120,29 @@ namespace WebApplication1.Services
 
         }
 
+        public bool StudentExists(string index)
+        {
+
+            using (SqlConnection con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18889;Integrated Security=True"))
+            using (SqlCommand com = new SqlCommand())
+            {
+
+
+                //pobranie id studiów
+                String idStudies;
+                com.Connection = con;
+                com.CommandText = $"select IndexNumber from Student where IndexNumber = '{index}'";
+                con.Open();
+
+
+                var dr = com.ExecuteReader();
+                if (dr.Read())
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        }
     }
 }

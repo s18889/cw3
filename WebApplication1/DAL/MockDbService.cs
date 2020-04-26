@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using WebApplication1.Models;
@@ -23,7 +24,79 @@ namespace WebApplication1.DAL
 
         }
 
-        public IEnumerable<Student> GetStudents()
+        public bool checkPas(string[] credentials)
+        {
+
+            using (SqlConnection con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18889;Integrated Security=True"))
+            using (SqlCommand com = new SqlCommand())
+            {
+
+
+                //pobranie id studiów
+                String idStudies;
+                com.Connection = con;
+                com.CommandText = $"select IndexNumber from Student where IndexNumber = '{credentials[0]}' and Pasword = '{credentials[1]}'";
+                con.Open();
+
+
+                var dr = com.ExecuteReader();
+                if (dr.Read())
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+        }
+
+        public void putKay(String kay)
+        {
+            using (SqlConnection con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18889;Integrated Security=True"))
+            using (SqlCommand com = new SqlCommand())
+            {
+
+
+         
+                com.Connection = con;
+                com.CommandText = $"insert into refresh values('{kay}')";
+                con.Open();
+
+
+                var dr = com.ExecuteNonQuery();
+
+
+
+            }
+        }
+        public bool testKay(String kay)
+        {
+            using (SqlConnection con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18889;Integrated Security=True"))
+            using (SqlCommand com = new SqlCommand())
+            {
+
+
+ 
+                com.Connection = con;
+                com.CommandText = $"select * from refresh where kay = '{kay}'";
+                con.Open();
+
+
+                var dr = com.ExecuteReader();
+                if (dr.Read())
+                {
+                    dr.Close();
+                    com.CommandText = $"delete from refresh where kay = '{kay}'";
+                    com.ExecuteNonQuery();
+
+                    return true;
+                }
+
+                return false;
+            }
+
+        }
+            public IEnumerable<Student> GetStudents()
         {
             return _studetns;
         }

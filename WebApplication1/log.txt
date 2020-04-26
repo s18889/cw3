@@ -5,3 +5,10 @@
 "Studies": "IT",
 "Semester": 1
 }
+
+ Entry:
+/api/students
+
+
+ Entry:
+/api/students

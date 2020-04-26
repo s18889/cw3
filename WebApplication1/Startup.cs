@@ -13,6 +13,11 @@ using Microsoft.Extensions.Logging;
 using WebApplication1.DAL;
 using WebApplication1.Services;
 using WebApplication1.Middlewares;
+using Microsoft.AspNetCore.Authentication;
+using WebApplication1.Handlerers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace WebApplication1
 {
@@ -28,6 +33,23 @@ namespace WebApplication1
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidIssuer = "Gakko",
+                        ValidAudience = "Students",
+
+                        IssuerSigningKey=new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]))
+                    };
+                });
+
+            services.AddAuthentication("AuthenticationBasic")
+                .AddScheme<AuthenticationSchemeOptions, AuthHandler>("AuthenticationBasic",null);
             services.AddSingleton<IDBService,MockDbService>();
             services.AddControllers();
         }
@@ -42,8 +64,11 @@ namespace WebApplication1
 
 
 
+            /*
+             
             app.Use(async (context, next) =>
             {
+
 
                 if (!context.Request.Headers.ContainsKey("Index"))
                 {
@@ -69,10 +94,11 @@ namespace WebApplication1
             }
 
                 );
-
-            app.UseMiddleware<LoggingMiddleware>();
+             
+            */
+            //app.UseMiddleware<LoggingMiddleware>();
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {

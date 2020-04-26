@@ -1,10 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using WebApplication1.DAL;
+using WebApplication1.DTOs;
 using WebApplication1.Models;
 using WebApplication1.Services;
 
@@ -14,6 +21,11 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class StudentsController : ControllerBase
     {
+
+        public IConfiguration Configuration { get; set;}
+
+
+
         //[HttpGet]
         //public String GetStudent()
         //{
@@ -22,9 +34,10 @@ namespace WebApplication1.Controllers
 
         private readonly IDBService _dbService;
 
-        public StudentsController(IDBService dbService)
+        public StudentsController(IConfiguration con, IDBService dbService)
         {
             _dbService = dbService;
+            Configuration = con;
         }
 
 
@@ -56,6 +69,9 @@ namespace WebApplication1.Controllers
         [HttpGet("{id}")]
         public IActionResult GetStudentWpis(String id)
         {
+
+
+
             using (SqlConnection con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18889;Integrated Security=True"))
             using (SqlCommand com = new SqlCommand())
             {
@@ -73,16 +89,87 @@ namespace WebApplication1.Controllers
             }
 
         }
-        //5.1
+        //7.1
         [HttpPost]
-        public IActionResult EnrollmentsController(AddStudent s)
+        public IActionResult login(LoginRequestDto request)
         {
-            Console.WriteLine(s.IndexNumber);
-            IStudentsDbService service = new ServerDbService();
-            return service.StrudentEnrolment(s);
-       }
+            String[] cr = { request.Login, request.Haslo };
+            if (!_dbService.checkPas(cr))
+            {
+                return BadRequest("blendne haslo lub login");
+            }
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier,request.Haslo),
+                new Claim(ClaimTypes.Name, request.Login),
+                new Claim(ClaimTypes.Role, "admin"),
+                new Claim(ClaimTypes.Role, "student")
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            
+            
+
+            var token = new JwtSecurityToken
+            (
+                issuer: "Gakko",
+                audience: "Students",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(10),
+                signingCredentials: creds
+            );
+            var tokenref = Guid.NewGuid();
+            _dbService.putKay(tokenref.ToString());
+            return Ok(new {
+                token = new JwtSecurityTokenHandler().WriteToken(token),
+                refreshToken = tokenref
+            });
+        }
+
+        [HttpPost("refresh")]
+        public IActionResult refresh(LoginRequestDtorefresh request)
+        {
+
+            if (!_dbService.testKay(request.Kay))
+            {
+                return BadRequest("niepoprawny klucz");
+            }
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier,request.Haslo),
+                new Claim(ClaimTypes.Name, request.Login),
+                new Claim(ClaimTypes.Role, "admin"),
+                new Claim(ClaimTypes.Role, "student")
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+
+
+            var token = new JwtSecurityToken
+            (
+                issuer: "Gakko",
+                audience: "Students",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(10),
+                signingCredentials: creds
+            );
+            var tokenref = Guid.NewGuid();
+            _dbService.putKay(tokenref.ToString());
+            return Ok(new
+            {
+                token = new JwtSecurityTokenHandler().WriteToken(token),
+                refreshToken = tokenref
+            });
+
+        }
 
         [HttpGet]
+        [Authorize]
         public IActionResult GetStudents(string orderBy)
         {
 
@@ -113,22 +200,27 @@ namespace WebApplication1.Controllers
             
 
         }
-/*
-        [HttpPost]
-        public IActionResult CreateStudent(Student s)
-        {
-            s.IndexNumber = $"s{new Random().Next(1, 20000)}";
 
-            return Ok(s);
+ 
 
-        }
-*/
+
+        /*
+                [HttpPost]
+                public IActionResult CreateStudent(Student s)
+                {
+                    s.IndexNumber = $"s{new Random().Next(1, 20000)}";
+
+                    return Ok(s);
+
+                }
+        */
         [HttpPut("{id}")]
         public IActionResult PutStudent(int id)
         {
             return Ok("Ąktualizacja dokończona");
         }
         [HttpDelete("{id}")]
+        [Authorize]
         public IActionResult DeleteStudent(int id)
         {
             return Ok("Usuwanie ukończone");

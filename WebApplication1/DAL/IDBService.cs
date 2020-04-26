@@ -10,5 +10,8 @@ namespace WebApplication1.DAL
     {
 
         public IEnumerable<Student> GetStudents();
+        bool checkPas(string[] credentials);
+        public void putKay(String kay);
+        public bool testKay(String kay);
     }
 }

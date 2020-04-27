@@ -84,10 +84,10 @@ namespace s18889a.DAL
 
                 }
 
-                com.CommandText = $"insert into Task values (select max(IdTask)+1 from Task,{putSth.Name},{putSth.Description},{putSth.Deadline},{null},{putSth.TaskType.IdTaskType},{putSth.IdAssignedTo},{putSth.IdCreator})"; //nie mam czasu
+                com.CommandText = $"insert into Task values (select max(IdTask)+1 from Task,{putSth.Name},{putSth.Description},CONVERT(datetime, '{putSth.Deadline}', 104),{null},{putSth.TaskType.IdTaskType},{putSth.IdAssignedTo},{putSth.IdCreator})"; 
 
                 trans.Commit();
-                return "";
+                return "poprawnie dodano";
             }
         }
     }

@@ -18,6 +18,7 @@ using WebApplication1.Handlerers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WebApplication1.Models;
 
 namespace WebApplication1
 {
@@ -33,7 +34,7 @@ namespace WebApplication1
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            /*services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
@@ -49,8 +50,9 @@ namespace WebApplication1
                 });
 
             services.AddAuthentication("AuthenticationBasic")
-                .AddScheme<AuthenticationSchemeOptions, AuthHandler>("AuthenticationBasic",null);
+                .AddScheme<AuthenticationSchemeOptions, AuthHandler>("AuthenticationBasic",null);*/
             services.AddSingleton<IDBService,MockDbService>();
+            services.AddSingleton<s18889Context,s18889Context >();
             services.AddControllers();
         }
 
@@ -98,8 +100,8 @@ namespace WebApplication1
             */
             //app.UseMiddleware<LoggingMiddleware>();
             app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
+            //app.UseAuthentication();
+            //app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 
 namespace WebApplication1.Models
 {
-
-    public class Student
+    public partial class Student
     {
-        public String IdStudent { get; set; }
-        public String FirstName { get; set; }
-        public String LastName { get; set; }
-        public String IndexNumber { get; set; }
+        public string IndexNumber { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public DateTime BirthDate { get; set; }
-
+        public int IdEnrollment { get; set; }
+        public string Pasword { get; set; }
     }
 }

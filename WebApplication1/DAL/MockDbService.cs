@@ -10,16 +10,16 @@ namespace WebApplication1.DAL
     public class MockDbService : IDBService
     {
 
-        private static IEnumerable<Student> _studetns;
+        private static IEnumerable<Student0> _studetns;
 
         static MockDbService()
         {
-            _studetns = new List<Student>
+            _studetns = new List<Student0>
             {
-                new Student { FirstName = "Adam", LastName = "Kowalski", IdStudent = "1" , IndexNumber = "s1"},
-                new Student { FirstName = "Zuzia", LastName = "Magda", IdStudent = "2" , IndexNumber = "s2"},
-                new Student { FirstName = "Janusz", LastName = "Pawlak", IdStudent = "3" , IndexNumber = "s3"},
-                new Student { FirstName = "Michał", LastName = "Zieliński", IdStudent = "4" , IndexNumber = "s18889"},
+                new Student0 { FirstName = "Adam", LastName = "Kowalski", IdStudent = "1" , IndexNumber = "s1"},
+                new Student0 { FirstName = "Zuzia", LastName = "Magda", IdStudent = "2" , IndexNumber = "s2"},
+                new Student0 { FirstName = "Janusz", LastName = "Pawlak", IdStudent = "3" , IndexNumber = "s3"},
+                new Student0 { FirstName = "Michał", LastName = "Zieliński", IdStudent = "4" , IndexNumber = "s18889"},
             };
 
         }
@@ -96,7 +96,7 @@ namespace WebApplication1.DAL
             }
 
         }
-            public IEnumerable<Student> GetStudents()
+            public IEnumerable<Student0> GetStudents()
         {
             return _studetns;
         }

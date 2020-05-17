@@ -62,7 +62,7 @@ namespace WebApplication1.Services
 
                 //dodanie noweo enrolment
                 int newIdEnrolment = int.Parse(maxIdEnrollment) + 1;
-                Enrolment en = new Enrolment()
+                Enrolment0 en = new Enrolment0()
                 {
                     IdEnrollment = newIdEnrolment,
                     Semester = 1,

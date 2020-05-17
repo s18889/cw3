@@ -33,11 +33,14 @@ namespace WebApplication1.Controllers
         //}
 
         private readonly IDBService _dbService;
+        s18889Context _linqDb;
 
-        public StudentsController(IConfiguration con, IDBService dbService)
+        public StudentsController(IConfiguration con, IDBService dbService,s18889Context linqDb)
         {
             _dbService = dbService;
             Configuration = con;
+            _linqDb = linqDb;
+            //_linqDb = new s18889Context();
         }
 
 
@@ -66,6 +69,142 @@ namespace WebApplication1.Controllers
         }*/
         //Zadanie 4.5 
         //[Route("api/students")]
+
+
+        [HttpPost("add")]
+        public IActionResult addStudentTo(Student st)
+        {
+
+
+            _linqDb.Student.Add(st);
+            _linqDb.SaveChanges();
+            return Ok(_linqDb.Student.ToList());
+
+        }
+
+        [HttpPost("enrollments")]
+        public IActionResult EnrollmentsController(AddStudent st)
+        {
+    
+
+            if (st.GetType().GetProperties().All(p => p.GetValue(st) != null)) return BadRequest("brak pola");    //sprawdzenie czy którzyś element nie jest null
+
+            try //sprawdzanie formatu daty
+            {
+                DateTime.Parse(st.BirthDate);
+            }
+            catch (FormatException e)
+            {
+                return BadRequest("zły format daty");
+            }
+
+            if (!_linqDb.Studies.Any(e => e.Name.Equals(st.Studies))) return BadRequest("nieprawidlowa nazwa kierunku");
+
+            int idStu = _linqDb.Studies.Where(e => e.Name.Equals(st.Studies)).Select(e => e.IdStudy).First();//wybieram id studiów
+            int idenrol;
+            if (!_linqDb.Enrollment.Any(e => e.IdStudy.Equals(idStu))) //jeśli nie ma takiego enrolment dodajemy go
+            {
+                idenrol = _linqDb.Enrollment.Max(e => e.IdEnrollment) + 1;
+                _linqDb.Enrollment.Add(new Enrollment
+                {
+                    IdEnrollment = idenrol,
+                    IdStudy = idStu,
+                    Semester = 1,
+                    StartDate = DateTime.Now
+
+                }) ;
+               
+            }
+            else //jak jest to go znajdujemy
+            {
+                idenrol = _linqDb.Enrollment.Where(e => e.IdStudy.Equals(idStu)).Select(e => e.IdEnrollment).First();
+            }
+
+            //sprawdzam unikalność indexu
+
+            if (_linqDb.Student.Any(e => e.IndexNumber.Equals(st.IndexNumber))) return BadRequest("podany index nie jest unikalny");
+
+            //dodaję studenta
+
+            
+
+            _linqDb.Student.Add(new Student
+            {
+                BirthDate = DateTime.Parse(st.BirthDate),
+                FirstName = st.FirstName,
+                LastName = st.LastName,
+                IdEnrollment = idenrol,
+                Pasword = "12345", //musiałem dodać z ręki bo w pierwotnym zadaniu nie było chasła
+                IndexNumber = st.IndexNumber
+
+            });
+            _linqDb.SaveChanges();
+            return Ok(_linqDb.Student.ToList());
+
+        }
+
+        [HttpPost("enrollments/Promotions")]
+        public IActionResult EnrollmentPromotion(enrolmentUp eu)
+        {
+            if (!_linqDb.Studies.Any(e => e.Name.Equals(eu.Studies))) return BadRequest("nieprawidlowa nazwa kierunku");
+            //pobranie id studies
+            int idStu = _linqDb.Studies.Where(e => e.IdStudy.Equals(eu.Studies)).Select(e => e.IdStudy).First();
+            //sprawdzanie czy jest poprawny enrolment
+            if (!_linqDb.Enrollment.Any(e => (e.IdStudy.Equals(idStu) && e.Semester.Equals(eu.Semester)))) return BadRequest("brak enrolment");
+            int idEnrolL = _linqDb.Enrollment.Where(e => e.IdStudy.Equals(idStu) && e.Semester.Equals(eu.Semester)).Select(e => e.IdEnrollment).First(); //niższy semestr
+
+            //czy nie istnieje rok starsze enrolment
+            int idEnrolH;
+            if (!_linqDb.Enrollment.Any(e => (e.IdStudy.Equals(idStu) && e.Semester.Equals(eu.Semester + 1))))
+            {//jeśli nie istnieje tworzymy
+
+                //nowe id enrolment
+                idEnrolH = _linqDb.Enrollment.Max(e => e.IdEnrollment) + 1;
+                //tworzę i dodaję
+                _linqDb.Enrollment.Add(new Enrollment
+                {
+                    Semester= eu.Semester + 1,
+                    StartDate=DateTime.Now,
+                    IdStudy=idStu,
+                    IdStudyNavigation = null, //???? nie wiem
+                    IdEnrollment = idEnrolH
+                });
+
+            }
+            else
+            {
+                idEnrolH = _linqDb.Enrollment.Where(e => (e.IdStudy.Equals(idStu) && e.Semester.Equals(eu.Semester + 1))).Select(e => e.IdEnrollment).First();
+            }
+            //wyszukuje studentów
+            var list = _linqDb.Student.Where(e => e.IdEnrollment.Equals(idEnrolL));
+            //aktualizuję ich enrolment
+            foreach(Student s in list)
+            {
+                s.IdEnrollment = idEnrolH;
+            }
+
+            _linqDb.SaveChanges();
+
+            return Ok();
+        }
+
+        [HttpDelete("remove")]
+        public IActionResult removeStudentfrom(Student st)
+        {
+
+            var s = _linqDb.Student.Where(e=> e.IndexNumber.Equals(st.IndexNumber)).First();
+            _linqDb.Student.Remove(s);
+            _linqDb.SaveChanges();
+            return Ok(_linqDb.Student.ToList());
+
+        }
+
+        [HttpGet("list")]
+        public IActionResult GetStudentlist(String id)
+        {
+            return Ok( _linqDb.Student.ToList());
+
+        }
         [HttpGet("{id}")]
         public IActionResult GetStudentWpis(String id)
         {

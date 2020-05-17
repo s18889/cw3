@@ -9,7 +9,7 @@ namespace WebApplication1.DAL
     public interface IDBService
     {
 
-        public IEnumerable<Student> GetStudents();
+        public IEnumerable<Student0> GetStudents();
         bool checkPas(string[] credentials);
         public void putKay(String kay);
         public bool testKay(String kay);

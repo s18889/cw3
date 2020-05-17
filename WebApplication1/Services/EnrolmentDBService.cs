@@ -40,7 +40,7 @@ namespace WebApplication1.Services
                 if (dr.Read())
                 {
 
-                    Enrolment ret = new Enrolment()
+                    Enrolment0 ret = new Enrolment0()
                     {
                         IdEnrollment = int.Parse(dr["IdEnrollment"].ToString()),
                         Semester = int.Parse(dr["Semester"].ToString()),
